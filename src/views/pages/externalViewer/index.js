@@ -621,18 +621,21 @@ const ExternalViewerPage = () => {
       fetchPolicy: 'network-only',
       onCompleted: (data) => {
         const showData = { ...data?.getShow };
-        if (showData?.playingNext === '') {
-          showData.playingNext = showData?.playingNextFromSchedule;
+        const subdomain = getSubdomain();
+        if (subdomain === showData?.showSubdomain) {
+          if (showData?.playingNext === '') {
+            showData.playingNext = showData?.playingNextFromSchedule;
+          }
+          if (showData?.preferences?.viewerControlMode === ViewerControlMode.VOTING) {
+            orderSequencesForVoting(showData);
+          }
+          setShow(showData);
+          getActiveViewerPage(showData);
+          if (showData?.preferences?.locationCheckMethod === LocationCheckMethod.GEO) {
+            setViewerLocation();
+          }
+          setLoading(false);
         }
-        if (showData?.preferences?.viewerControlMode === ViewerControlMode.VOTING) {
-          orderSequencesForVoting(showData);
-        }
-        setShow(showData);
-        getActiveViewerPage(showData);
-        if (showData?.preferences?.locationCheckMethod === LocationCheckMethod.GEO) {
-          setViewerLocation();
-        }
-        setLoading(false);
       },
       onError: () => {
         showAlert(dispatch, { alert: 'error' });
@@ -649,26 +652,28 @@ const ExternalViewerPage = () => {
       },
       onCompleted: (data) => {
         const showData = { ...data?.getShow };
+
+        const subdomain = getSubdomain();
         if (showData?.preferences?.selfHostedRedirectUrl) {
           window.location.href = showData?.preferences?.selfHostedRedirectUrl;
-          return;
+        } else if (subdomain === showData?.showSubdomain) {
+          if (showData?.playingNext === '') {
+            showData.playingNext = showData?.playingNextFromSchedule;
+          }
+          setNowPlaying(showData?.playingNow);
+          if (showData?.preferences?.viewerControlMode === ViewerControlMode.VOTING) {
+            orderSequencesForVoting(showData);
+          }
+          setShow(showData);
+          getActiveViewerPage(showData);
+          if (showData?.preferences?.locationCheckMethod === LocationCheckMethod.GEO) {
+            setViewerLocation();
+          }
+          mixpanel.track('Viewer Page View', {
+            Show_Name: showData?.showName
+          });
+          setLoading(false);
         }
-        if (showData?.playingNext === '') {
-          showData.playingNext = showData?.playingNextFromSchedule;
-        }
-        setNowPlaying(showData?.playingNow);
-        if (showData?.preferences?.viewerControlMode === ViewerControlMode.VOTING) {
-          orderSequencesForVoting(showData);
-        }
-        setShow(showData);
-        getActiveViewerPage(showData);
-        if (showData?.preferences?.locationCheckMethod === LocationCheckMethod.GEO) {
-          setViewerLocation();
-        }
-        mixpanel.track('Viewer Page View', {
-          Show_Name: showData?.showName
-        });
-        setLoading(false);
       },
       onError: () => {
         showAlert(dispatch, { alert: 'error' });
