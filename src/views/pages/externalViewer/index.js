@@ -270,45 +270,61 @@ const ExternalViewerPage = () => {
               const votingListClassname = `cell-vote-playlist cell-vote-playlist-${sequence.key}`;
               const votingListArtistClassname = `cell-vote-playlist-artist cell-vote-playlist-artist-${sequence.key}`;
 
-              if (show?.playingNow === sequence.displayName) {
+              if (show?.playingNowSequence != null) {
+                const playingNowSequence = show?.playingNowSequence;
                 let sequenceImageElement = [<></>];
-                if (sequence && sequence.imageUrl && sequence.imageUrl.replace(/\s/g, '').length) {
-                  const classname = `sequence-image sequence-image-${sequence.key}`;
-                  sequenceImageElement = <img alt={sequence.name} className={classname} src={sequence.imageUrl} data-key={sequence.name} />;
+                if (playingNowSequence && playingNowSequence?.imageUrl && playingNowSequence?.imageUrl.replace(/\s/g, '').length) {
+                  const classname = `sequence-image sequence-image-${playingNowSequence?.key}`;
+                  sequenceImageElement = (
+                    <img
+                      alt={playingNowSequence?.name}
+                      className={classname}
+                      src={playingNowSequence?.imageUrl}
+                      data-key={playingNowSequence?.name}
+                    />
+                  );
                   playingNow = (
                     <>
                       {sequenceImageElement}
-                      {sequence.displayName}
-                      <div className={votingListArtistClassname}>{sequence.artist}</div>
+                      {playingNowSequence?.displayName}
+                      <div className={votingListArtistClassname}>{playingNowSequence?.artist}</div>
                     </>
                   );
                 } else {
                   playingNow = (
                     <>
-                      {sequence.displayName}
-                      <div className={votingListArtistClassname}>{sequence.artist}</div>
+                      {playingNowSequence?.displayName}
+                      <div className={votingListArtistClassname}>{playingNowSequence?.artist}</div>
                     </>
                   );
                 }
               }
 
-              if (show?.playingNext === sequence.displayName) {
+              if (show?.playingNextSequence != null) {
+                const playingNextSequence = show?.playingNextSequence;
                 let sequenceImageElement = [<></>];
-                if (sequence && sequence.imageUrl && sequence.imageUrl.replace(/\s/g, '').length) {
-                  const classname = `sequence-image sequence-image-${sequence.key}`;
-                  sequenceImageElement = <img alt={sequence.name} className={classname} src={sequence.imageUrl} data-key={sequence.name} />;
+                if (playingNextSequence && playingNextSequence?.imageUrl && playingNextSequence?.imageUrl.replace(/\s/g, '').length) {
+                  const classname = `sequence-image sequence-image-${playingNextSequence?.key}`;
+                  sequenceImageElement = (
+                    <img
+                      alt={playingNextSequence?.name}
+                      className={classname}
+                      src={playingNextSequence?.imageUrl}
+                      data-key={playingNextSequence?.name}
+                    />
+                  );
                   playingNext = (
                     <>
                       {sequenceImageElement}
-                      {sequence.displayName}
-                      <div className={votingListArtistClassname}>{sequence.artist}</div>
+                      {playingNextSequence?.displayName}
+                      <div className={votingListArtistClassname}>{playingNextSequence?.artist}</div>
                     </>
                   );
                 } else {
                   playingNext = (
                     <>
-                      {sequence.displayName}
-                      <div className={votingListArtistClassname}>{sequence.artist}</div>
+                      {playingNextSequence?.displayName}
+                      <div className={votingListArtistClassname}>{playingNextSequence?.artist}</div>
                     </>
                   );
                 }
@@ -394,45 +410,61 @@ const ExternalViewerPage = () => {
           const jukeboxListClassname = `jukebox-list jukebox-list-${sequence.key}`;
           const jukeboxListArtistClassname = `jukebox-list-artist jukebox-list-artist-${sequence.key}`;
 
-          if (show?.playingNow === sequence.displayName) {
+          if (show?.playingNowSequence != null) {
+            const playingNowSequence = show?.playingNowSequence;
             let sequenceImageElement = [<></>];
-            if (sequence && sequence.imageUrl && sequence.imageUrl.replace(/\s/g, '').length) {
-              const classname = `sequence-image sequence-image-${sequence.key}`;
-              sequenceImageElement = <img alt={sequence.name} className={classname} src={sequence.imageUrl} data-key={sequence.name} />;
+            if (playingNowSequence && playingNowSequence?.imageUrl && playingNowSequence?.imageUrl.replace(/\s/g, '').length) {
+              const classname = `sequence-image sequence-image-${playingNowSequence?.key}`;
+              sequenceImageElement = (
+                <img
+                  alt={playingNowSequence?.name}
+                  className={classname}
+                  src={playingNowSequence?.imageUrl}
+                  data-key={playingNowSequence?.name}
+                />
+              );
               playingNow = (
                 <>
                   {sequenceImageElement}
-                  {sequence.displayName}
-                  <div className={jukeboxListArtistClassname}>{sequence.artist}</div>
+                  {playingNowSequence?.displayName}
+                  <div className={jukeboxListArtistClassname}>{playingNowSequence?.artist}</div>
                 </>
               );
             } else {
               playingNow = (
                 <>
-                  {sequence.displayName}
-                  <div className={jukeboxListArtistClassname}>{sequence.artist}</div>
+                  {playingNowSequence?.displayName}
+                  <div className={jukeboxListArtistClassname}>{playingNowSequence?.artist}</div>
                 </>
               );
             }
           }
 
-          if (show?.playingNext === sequence.displayName) {
+          if (show?.playingNextSequence != null) {
+            const playingNextSequence = show?.playingNextSequence;
             let sequenceImageElement = [<></>];
-            if (sequence && sequence.imageUrl && sequence.imageUrl.replace(/\s/g, '').length) {
-              const classname = `sequence-image sequence-image-${sequence.key}`;
-              sequenceImageElement = <img alt={sequence.name} className={classname} src={sequence.imageUrl} data-key={sequence.name} />;
+            if (playingNextSequence && playingNextSequence?.imageUrl && playingNextSequence?.imageUrl.replace(/\s/g, '').length) {
+              const classname = `sequence-image sequence-image-${playingNextSequence?.key}`;
+              sequenceImageElement = (
+                <img
+                  alt={playingNextSequence?.name}
+                  className={classname}
+                  src={playingNextSequence?.imageUrl}
+                  data-key={playingNextSequence?.name}
+                />
+              );
               playingNext = (
                 <>
                   {sequenceImageElement}
-                  {sequence.displayName}
-                  <div className={jukeboxListArtistClassname}>{sequence.artist}</div>
+                  {playingNextSequence?.displayName}
+                  <div className={jukeboxListArtistClassname}>{playingNextSequence?.artist}</div>
                 </>
               );
             } else {
               playingNext = (
                 <>
-                  {sequence.displayName}
-                  <div className={jukeboxListArtistClassname}>{sequence.artist}</div>
+                  {playingNextSequence?.displayName}
+                  <div className={jukeboxListArtistClassname}>{playingNextSequence?.artist}</div>
                 </>
               );
             }

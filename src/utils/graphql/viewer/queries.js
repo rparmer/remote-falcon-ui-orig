@@ -6,7 +6,39 @@ export const GET_SHOW = gql`
     getShow {
       showSubdomain
       playingNow
+      playingNowSequence {
+        name
+        key
+        displayName
+        duration
+        visible
+        index
+        order
+        imageUrl
+        active
+        visibilityCount
+        type
+        group
+        category
+        artist
+      }
       playingNext
+      playingNextSequence {
+        name
+        key
+        displayName
+        duration
+        visible
+        index
+        order
+        imageUrl
+        active
+        visibilityCount
+        type
+        group
+        category
+        artist
+      }
       playingNextFromSchedule
       showName
       preferences {
