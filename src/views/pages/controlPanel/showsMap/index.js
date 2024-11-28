@@ -5,7 +5,6 @@ import { useLazyQuery, useMutation } from '@apollo/client';
 import { Box, Grid, Stack, Typography, Switch, CardActions } from '@mui/material';
 import { APIProvider, Map } from '@vis.gl/react-google-maps';
 import _ from 'lodash';
-import { useFeatureFlagEnabled } from 'posthog-js/react';
 
 import { useDispatch, useSelector } from 'store';
 import { gridSpacing } from 'store/constant';
@@ -29,8 +28,6 @@ const ShowsMap = () => {
 
   const [updatePreferencesMutation] = useMutation(UPDATE_PREFERENCES);
   const [showsOnMapQuery] = useLazyQuery(SHOWS_ON_MAP);
-
-  const rfShowMapEnabled = useFeatureFlagEnabled('rf-show-map');
 
   const detectLocation = useCallback(async () => {
     if ('geolocation' in navigator) {
@@ -157,81 +154,77 @@ const ShowsMap = () => {
 
   return (
     <Box sx={{ mt: 2 }}>
-      {rfShowMapEnabled ? (
-        <Grid container spacing={gridSpacing}>
-          <Grid item xs={12}>
-            <MainCard title="Remote Falcon Shows Map" content={false}>
+      <Grid container spacing={gridSpacing}>
+        <Grid item xs={12}>
+          <MainCard title="Remote Falcon Shows Map" content={false}>
+            <CardActions>
+              <Grid container alignItems="center" justifyContent="space-between" spacing={1}>
+                <Grid item xs={12} md={6} lg={4}>
+                  <Stack direction="row" spacing={2} pb={1}>
+                    <Typography variant="h4">Show {show?.showName} on the Map</Typography>
+                  </Stack>
+                  <Typography component="div" variant="caption">
+                    If enabled, {show?.showName}&apos;s location will be displayed on the Remote Falcon Shows Map.
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} md={6} lg={4}>
+                  <Switch
+                    name="displayShowOnMap"
+                    color="primary"
+                    checked={show?.preferences?.showOnMap}
+                    onChange={handleShowMyShowSwitch}
+                  />
+                </Grid>
+              </Grid>
+            </CardActions>
+            {show?.preferences?.showOnMap && (
               <CardActions>
                 <Grid container alignItems="center" justifyContent="space-between" spacing={1}>
                   <Grid item xs={12} md={6} lg={4}>
-                    <Stack direction="row" spacing={2} pb={1}>
-                      <Typography variant="h4">Show {show?.showName} on the Map</Typography>
-                    </Stack>
+                    <Typography variant="h4" display="inline">
+                      Current Show Location:
+                      <Typography variant="h4" display="inline" color="primary" ml={1}>
+                        {show?.preferences?.showLatitude}, {show?.preferences?.showLongitude}
+                      </Typography>
+                    </Typography>
+                    <Typography variant="h4">
+                      Detected Location:
+                      <Typography variant="h4" display="inline" color="primary" ml={5.2}>
+                        {detectedLocation.lat}, {detectedLocation.long}
+                      </Typography>
+                    </Typography>
                     <Typography component="div" variant="caption">
-                      If enabled, {show?.showName}&apos;s location will be displayed on the Remote Falcon Shows Map.
+                      If your show location on the map is not accurate, click Update to Detected Location to set your shows location to the
+                      current detected location.
                     </Typography>
                   </Grid>
                   <Grid item xs={12} md={6} lg={4}>
-                    <Switch
-                      name="displayShowOnMap"
-                      color="primary"
-                      checked={show?.preferences?.showOnMap}
-                      onChange={handleShowMyShowSwitch}
-                    />
+                    <RFLoadingButton onClick={updateToDetectedLocation} color="primary" disabled={!show?.preferences?.showOnMap}>
+                      Update to Detected Location
+                    </RFLoadingButton>
                   </Grid>
                 </Grid>
               </CardActions>
-              {show?.preferences?.showOnMap && (
-                <CardActions>
-                  <Grid container alignItems="center" justifyContent="space-between" spacing={1}>
-                    <Grid item xs={12} md={6} lg={4}>
-                      <Typography variant="h4" display="inline">
-                        Current Show Location:
-                        <Typography variant="h4" display="inline" color="primary" ml={1}>
-                          {show?.preferences?.showLatitude}, {show?.preferences?.showLongitude}
-                        </Typography>
-                      </Typography>
-                      <Typography variant="h4">
-                        Detected Location:
-                        <Typography variant="h4" display="inline" color="primary" ml={5.2}>
-                          {detectedLocation.lat}, {detectedLocation.long}
-                        </Typography>
-                      </Typography>
-                      <Typography component="div" variant="caption">
-                        If your show location on the map is not accurate, click Update to Detected Location to set your shows location to
-                        the current detected location.
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={12} md={6} lg={4}>
-                      <RFLoadingButton onClick={updateToDetectedLocation} color="primary" disabled={!show?.preferences?.showOnMap}>
-                        Update to Detected Location
-                      </RFLoadingButton>
-                    </Grid>
-                  </Grid>
-                </CardActions>
-              )}
-              <Box sx={{ mt: 4 }}>
-                <Typography variant="h3" align="center" color="secondary">
-                  Total Shows on Map: {showsOnMap?.length}
-                </Typography>
-              </Box>
-              <CardActions sx={{ height: '39em' }}>
-                <APIProvider apiKey={process.env.REACT_APP_GOOGLE_MAPS_KEY} onLoad={() => setMapLoaded(true)}>
-                  {mapLoaded && (
-                    <Map mapId="972618e58193992a" defaultZoom={1} defaultCenter={center}>
-                      {_.map(showsOnMap, (show) => (
-                        <MarkerWithInfo position={show?.location} showName={show?.showName} />
-                      ))}
-                    </Map>
-                  )}
-                </APIProvider>
-              </CardActions>
-            </MainCard>
-          </Grid>
+            )}
+            <Box sx={{ mt: 4 }}>
+              <Typography variant="h3" align="center" color="secondary">
+                Total Shows on Map: {showsOnMap?.length}
+              </Typography>
+            </Box>
+            <CardActions sx={{ height: '39em' }}>
+              <APIProvider apiKey={process.env.REACT_APP_GOOGLE_MAPS_KEY} onLoad={() => setMapLoaded(true)}>
+                {mapLoaded && (
+                  <Map mapId="972618e58193992a" defaultZoom={1} defaultCenter={center}>
+                    {_.map(showsOnMap, (show) => (
+                      <MarkerWithInfo position={show?.location} showName={show?.showName} />
+                    ))}
+                  </Map>
+                )}
+              </APIProvider>
+            </CardActions>
+          </MainCard>
         </Grid>
-      ) : (
-        <></>
-      )}
+      </Grid>
     </Box>
   );
 };

@@ -1,6 +1,5 @@
 import { Divider, List, Typography } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import { useFeatureFlagEnabled } from 'posthog-js/react';
 import PropTypes from 'prop-types';
 
 import { useDispatch, useSelector } from 'store';
@@ -12,15 +11,8 @@ const NavGroup = ({ item }) => {
   const theme = useTheme();
   const { show } = useSelector((state) => state.show);
 
-  const rfShowMapEnabled = useFeatureFlagEnabled('rf-show-map');
-
   // menu list collapse & items
   const items = item.children?.map((menu) => {
-    if (!rfShowMapEnabled) {
-      if (menu.id === 'shows-map') {
-        return <></>;
-      }
-    }
     if (menu.id === 'admin') {
       if (show?.showRole !== 'ADMIN') {
         return <></>;
