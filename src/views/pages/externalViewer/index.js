@@ -686,6 +686,10 @@ const ExternalViewerPage = () => {
         const showData = { ...data?.getShow };
 
         const subdomain = getSubdomain();
+
+        const referrer = document.referrer;
+        console.log('Referrer URL: ', referrer);
+
         if (showData?.preferences?.selfHostedRedirectUrl) {
           window.location.href = showData?.preferences?.selfHostedRedirectUrl;
         } else if (subdomain === showData?.showSubdomain) {
