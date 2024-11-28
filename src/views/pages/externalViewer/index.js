@@ -27,6 +27,8 @@ import { defaultProcessingInstructions, processingInstructions, viewerPageMessag
 const ExternalViewerPage = () => {
   const dispatch = useDispatch();
 
+  const blockRedirectReferrers = ['https://player.pulsemesh.io/'];
+
   const [loading, setLoading] = useState(false);
   const [show, setShow] = useState();
   const [activeViewerPage, setActiveViewerPage] = useState();
@@ -687,11 +689,12 @@ const ExternalViewerPage = () => {
 
         const subdomain = getSubdomain();
 
-        const referrer = document.referrer;
-        console.log('Referrer URL: ', referrer);
-
         if (showData?.preferences?.selfHostedRedirectUrl) {
-          window.location.href = showData?.preferences?.selfHostedRedirectUrl;
+          const referrer = document.referrer;
+          console.log('Referrer URL: ', referrer);
+          if (!_.includes(blockRedirectReferrers, referrer)) {
+            window.location.href = showData?.preferences?.selfHostedRedirectUrl;
+          }
         } else if (subdomain === showData?.showSubdomain) {
           if (showData?.playingNext === '') {
             showData.playingNext = showData?.playingNextFromSchedule;

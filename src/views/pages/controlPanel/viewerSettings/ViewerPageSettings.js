@@ -157,7 +157,7 @@ const ViewerPageSettings = ({ setShowLinearProgress }) => {
           <Grid container alignItems="center" justifyContent="space-between" spacing={2}>
             <Grid item xs={12} md={6} lg={4}>
               <Stack direction="row" spacing={2} pb={1}>
-                <Typography variant="h4">Self Hosted Redirect URL</Typography>
+                <Typography variant="h4">Redirect URL</Typography>
                 <InfoTwoToneIcon
                   onClick={() =>
                     window.open(
@@ -170,8 +170,8 @@ const ViewerPageSettings = ({ setShowLinearProgress }) => {
                 />
               </Stack>
               <Typography component="div" variant="caption">
-                If you are self-hosting Remote Falcon, this would be the URL of the viewer page you want to redirect to when a viewer visits
-                your show page on the main Remote Falcon site.
+                This would be the URL of the page you want to redirect to when a viewer visits your show page on the main Remote Falcon
+                site. Use this if you are self hosting or want to redirect to a different site (PulseMesh for example).
               </Typography>
             </Grid>
             <Grid item xs={12} md={6} lg={4}>
