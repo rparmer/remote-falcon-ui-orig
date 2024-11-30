@@ -6,7 +6,6 @@ import { useTheme } from '@mui/material/styles';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import _ from 'lodash';
 
 import { useDispatch, useSelector } from 'store';
 import MainCard from 'ui-component/cards/MainCard';
@@ -40,6 +39,10 @@ const DashboardCharts = () => {
 
   const dateMinus7 = new Date();
   dateMinus7.setDate(dateMinus7.getDate() - 7);
+  dateMinus7.setHours(0, 0, 0);
+  const datePlus1 = new Date();
+  datePlus1.setDate(datePlus1.getDate() + 1);
+  datePlus1.setHours(0, 0, 0);
 
   const [purgeStatsMutation] = useMutation(PURGE_STATS);
   const [deleteStatsWithinRangeMutation] = useMutation(DELETE_STATS_WITHIN_RANGE);
@@ -47,7 +50,7 @@ const DashboardCharts = () => {
   const [dashboardStatsQuery] = useLazyQuery(DASHBOARD_STATS);
 
   const [dateFilterStart, setDateFilterStart] = useState(dateMinus7.setHours(0, 0, 0));
-  const [dateFilterEnd, setDateFilterEnd] = useState(new Date().setHours(23, 59, 59));
+  const [dateFilterEnd, setDateFilterEnd] = useState(datePlus1.setHours(23, 59, 59));
   const [dashboardStats, setDashboardStats] = useState();
   const [isLoading, setLoading] = useState(false);
   const [isDownloadingStats, setIsDownloadingStats] = useState(false);
