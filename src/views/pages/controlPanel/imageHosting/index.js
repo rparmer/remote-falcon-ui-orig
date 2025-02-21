@@ -116,21 +116,25 @@ const ImageHosting = () => {
         if (response.status === 200) {
           showAlert(dispatch, { message: `${imageName} uploaded successfully.` });
         } else {
-          showAlert(dispatch, { alert: 'error', message: 'Failed to upload image' });
+          showAlert(dispatch, { alert: 'error', message: response.data });
         }
       })
       .finally(() => {
         getImages();
         setShowLinearProgress(false);
       })
-      .catch(() => setShowLinearProgress(false));
+      .catch((response) => {
+        showAlert(dispatch, { alert: 'error', message: response?.response?.data });
+        setShowLinearProgress(false);
+      });
   }
 
   const { getRootProps, getInputProps, isFocused, isDragAccept, isDragReject } = useDropzone({
     accept: { 'image/*': [] },
     multiple: false,
     maxSize: 1000000,
-    onDropAccepted: (acceptedFiles) => uploadFile(acceptedFiles)
+    onDropAccepted: (acceptedFiles) => uploadFile(acceptedFiles),
+    onDropRejected: (fileRejections) => showAlert(dispatch, { alert: 'error', message: fileRejections[0].errors[0].message })
   });
 
   const style = useMemo(
@@ -195,7 +199,7 @@ const ImageHosting = () => {
                               <TableCell>
                                 <Stack direction="row" spacing={1}>
                                   <a href={image.path} target="_blank" rel="noreferrer">
-                                    <Typography variant="h4" sx={{ color: theme.palette.primary.main }}>
+                                    <Typography variant="h4" sx={{ color: theme.palette.primary.main, pt: 1 }}>
                                       {image.path}
                                     </Typography>
                                   </a>
