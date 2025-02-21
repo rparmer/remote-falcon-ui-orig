@@ -1,6 +1,6 @@
 import { Divider, List, Typography } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import { useFeatureFlagEnabled } from 'posthog-js/react';
+import { useFeatureFlagPayload } from 'posthog-js/react';
 import PropTypes from 'prop-types';
 
 import { useDispatch, useSelector } from 'store';
@@ -12,7 +12,7 @@ const NavGroup = ({ item }) => {
   const theme = useTheme();
   const { show } = useSelector((state) => state.show);
 
-  const imageHostingEnabled = useFeatureFlagEnabled('image-hosting');
+  const imageHostingPayload = useFeatureFlagPayload('image-hosting');
 
   // menu list collapse & items
   const items = item.children?.map((menu) => {
@@ -21,7 +21,7 @@ const NavGroup = ({ item }) => {
         return <></>;
       }
     }
-    if (menu.id === 'image-hosting' && !imageHostingEnabled) {
+    if (menu.id === 'image-hosting' && !imageHostingPayload?.includes(show?.showSubdomain)) {
       return <></>;
     }
     switch (menu.type) {

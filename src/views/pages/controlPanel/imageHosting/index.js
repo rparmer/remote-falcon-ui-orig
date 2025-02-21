@@ -20,10 +20,10 @@ import {
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import _ from 'lodash';
-import { useFeatureFlagEnabled } from 'posthog-js/react';
+import { useFeatureFlagPayload } from 'posthog-js/react';
 import { useDropzone } from 'react-dropzone';
 
-import { useDispatch } from 'store';
+import { useDispatch, useSelector } from 'store';
 import { gridSpacing } from 'store/constant';
 import MainCard from 'ui-component/cards/MainCard';
 
@@ -33,8 +33,9 @@ import { uploadImageService, getImagesService, deleteImageService } from './inde
 const ImageHosting = () => {
   const theme = useTheme();
   const dispatch = useDispatch();
+  const { show } = useSelector((state) => state.show);
 
-  const imageHostingEnabled = useFeatureFlagEnabled('image-hosting');
+  const imageHostingPayload = useFeatureFlagPayload('image-hosting');
 
   const [showLinearProgress, setShowLinearProgress] = useState(false);
   const [images, setImages] = useState([]);
@@ -160,7 +161,7 @@ const ImageHosting = () => {
 
   return (
     <Box sx={{ mt: 2 }}>
-      {imageHostingEnabled ? (
+      {imageHostingPayload?.includes(show?.showSubdomain) ? (
         <Grid container spacing={gridSpacing}>
           <Grid item xs={12}>
             <MainCard title="Image Hosting" content={false}>

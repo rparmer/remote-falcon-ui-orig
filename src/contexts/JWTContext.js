@@ -4,7 +4,6 @@ import { createContext, useEffect } from 'react';
 
 import { useLazyQuery, useMutation, useApolloClient } from '@apollo/client';
 import jwtDecode from 'jwt-decode';
-import { PostHogProvider } from 'posthog-js/react';
 import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
 
@@ -77,7 +76,6 @@ export const JWTProvider = ({ children }) => {
             onCompleted: (data) => {
               const showData = { ...data?.getShow };
               showData.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-              PostHogProvider.distinctID = showData?.showSubdomain;
               dispatch(
                 startLoginAction({
                   ...showData
@@ -118,7 +116,6 @@ export const JWTProvider = ({ children }) => {
           onCompleted: (data) => {
             const showData = { ...data?.getShow };
             showData.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-            PostHogProvider.distinctID = showData?.showSubdomain;
             dispatch(
               startLoginAction({
                 ...showData
