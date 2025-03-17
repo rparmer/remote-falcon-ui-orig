@@ -22,7 +22,8 @@ const defaultViewerPages = [
   { id: 'purple-halloween', label: 'Purple Halloween by StramMade3D', content: '' },
   { id: 'red-and-white', label: 'Red & White by StramMade3D', content: '' },
   { id: 'on-air', label: 'On Air by Jason Toy', content: '' },
-  { id: 'lumos-light-show', label: 'Lumos Light Show by James Vance', content: '' }
+  { id: 'lumos-light-show', label: 'Lumos Light Show by James Vance', content: '' },
+  { id: 'dynamic-menu', label: 'Dynamic Menu by Matt Orelup', content: '' }
 ];
 
 const CreateViewerPageModal = ({ setCreateViewerPageOpen, editNewViewerPage }) => {

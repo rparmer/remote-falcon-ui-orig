@@ -28,11 +28,16 @@ export const getRemoteViewerPageTemplatesFromGithubService = async () => {
     'https://raw.githubusercontent.com/Remote-Falcon/remote-falcon-page-templates/main/templates/lumos-light-show.html',
     config
   );
+  const dynamicMenu = await newAxios.get(
+      'https://raw.githubusercontent.com/Remote-Falcon/remote-falcon-page-templates/main/templates/dynamic-menu.html',
+      config
+  );
   viewerPages.push({ key: 1, title: 'The OG by Rick Harris', content: theOG.data });
   viewerPages.push({ key: 2, title: 'Purple Halloween by StramMade3D', content: purpleHalloween.data });
   viewerPages.push({ key: 3, title: 'Red & White by StramMade3D', content: redAndWhite.data });
   viewerPages.push({ key: 4, title: 'On Air by Jason Toy', content: onAir.data });
   viewerPages.push({ key: 5, title: 'Lumos Light Show by James Vance', content: lls.data });
+  viewerPages.push({ key: 6, title: 'Dynamic Menu by Matt Orelup', content: dynamicMenu.data });
 
   return viewerPages;
 };

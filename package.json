@@ -65,7 +65,6 @@
     "dev": "vite",
     "build": "GENERATE_SOURCEMAP=false vite build",
     "serve": "vite preview",
-    "start": "react-scripts start",
     "lint": "eslint --fix --ext .js,.jsx ./src",
     "nuke-modules": "if [ -d node_modules ]; then rm -rf node_modules; fi",
     "cypress:open": "npx cypress open",
