@@ -11,6 +11,8 @@ const AuthRegister = Loadable(lazy(() => import('../views/pages/authentication/R
 const AuthForgotPassword = Loadable(lazy(() => import('../views/pages/authentication/ForgotPassword')));
 const VerifyEmail = Loadable(lazy(() => import('../views/pages/authentication/VerifyEmail')));
 const ResetPassword = Loadable(lazy(() => import('../views/pages/authentication/ResetPassword')));
+const PrivacyPolicy = Loadable(lazy(() => import('../views/pages/misc/PrivacyPolicy')));
+const TermsAndConditions = Loadable(lazy(() => import('../views/pages/misc/TermsAndConditions')));
 
 const LoginRoutes = {
   path: '/',
@@ -45,6 +47,14 @@ const LoginRoutes = {
     {
       path: '/resetPassword/:passwordResetLink',
       element: <ResetPassword />
+    },
+    {
+      path: '/privacy-policy',
+      element: <PrivacyPolicy />
+    },
+    {
+      path: '/terms-and-conditions',
+      element: <TermsAndConditions />
     }
   ]
 };
