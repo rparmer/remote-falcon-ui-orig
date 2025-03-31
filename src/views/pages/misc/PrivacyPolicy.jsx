@@ -5,12 +5,6 @@ const PrivacyPolicy = () => {
             <meta charSet="utf-8" />
             <meta name="viewport" content="width=device-width" />
             <title>Privacy Policy</title>
-            <style
-                dangerouslySetInnerHTML={{
-                    __html:
-                        " body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding:1em; } "
-                }}
-            />
             <strong>Privacy Policy</strong>
             <p>
                 This privacy policy applies to the Remote Falcon app (hereby referred to as

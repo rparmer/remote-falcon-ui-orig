@@ -5,12 +5,6 @@ const TermsAndConditions = () => {
             <meta charSet="utf-8" />
             <meta name="viewport" content="width=device-width" />
             <title>Terms &amp; Conditions</title>
-            <style
-                dangerouslySetInnerHTML={{
-                    __html:
-                        " body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding:1em; } "
-                }}
-            />
             <strong>Terms &amp; Conditions</strong>
             <br />
             <p>

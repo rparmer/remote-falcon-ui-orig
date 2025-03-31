@@ -13,6 +13,7 @@ const VerifyEmail = Loadable(lazy(() => import('../views/pages/authentication/Ve
 const ResetPassword = Loadable(lazy(() => import('../views/pages/authentication/ResetPassword')));
 const PrivacyPolicy = Loadable(lazy(() => import('../views/pages/misc/PrivacyPolicy')));
 const TermsAndConditions = Loadable(lazy(() => import('../views/pages/misc/TermsAndConditions')));
+const Ownership = Loadable(lazy(() => import('../views/pages/misc/Ownership')));
 
 const LoginRoutes = {
   path: '/',
@@ -55,6 +56,10 @@ const LoginRoutes = {
     {
       path: '/terms-and-conditions',
       element: <TermsAndConditions />
+    },,
+    {
+      path: '/owners',
+      element: <Ownership />
     }
   ]
 };
