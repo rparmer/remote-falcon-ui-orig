@@ -71,7 +71,7 @@ const NotificationSection = () => {
       fetchPolicy: 'network-only',
       onCompleted: (data) => {
         const showNotifications = _.cloneDeep(data?.getNotifications);
-        const sortedShowNotifications = _.orderBy(showNotifications, ['notification.createdDate'], ['asc']);
+        const sortedShowNotifications = _.orderBy(showNotifications, ['notification.createdDate'], ['desc']);
         let unreadCount = 0;
         _.forEach(showNotifications, (showNotification) => {
           if (!showNotification?.read) {
