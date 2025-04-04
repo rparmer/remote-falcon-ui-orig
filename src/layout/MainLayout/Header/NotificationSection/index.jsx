@@ -71,16 +71,11 @@ const NotificationSection = () => {
       fetchPolicy: 'network-only',
       onCompleted: (data) => {
         const showNotifications = _.cloneDeep(data?.getNotifications);
-        const sortedShowNotifications = _.orderBy(showNotifications, ['notification.id'], ['desc']);
+        const sortedShowNotifications = _.orderBy(showNotifications, ['notification.createdDate'], ['asc']);
         let unreadCount = 0;
         _.forEach(showNotifications, (showNotification) => {
-          if (!showNotification?.read && !showNotification?.deleted) {
+          if (!showNotification?.read) {
             unreadCount += 1;
-          }
-          if (showNotification?.notification?.message?.length > 40) {
-            showNotification.notification.preview = `${showNotification?.notification?.message?.substring(0, 40)}...`;
-          } else {
-            showNotification.notification.preview = showNotification?.notification?.message;
           }
         });
 
@@ -108,7 +103,7 @@ const NotificationSection = () => {
         }
       },
       variables: {
-        ids: [notification?.notification?.id]
+        uuids: [notification?.notification?.uuid]
       },
       fetchPolicy: 'network-only',
       onCompleted: () => {
@@ -119,7 +114,7 @@ const NotificationSection = () => {
   };
 
   const markAllNotificationsAsRead = async () => {
-    const notificationIds = notifications.map((notification) => notification?.notification?.id);
+    const notificationIds = notifications.map((notification) => notification?.notification?.uuid);
     await markNotificationsAsReadMutation({
       context: {
         headers: {
@@ -127,7 +122,7 @@ const NotificationSection = () => {
         }
       },
       variables: {
-        ids: notificationIds
+        uuids: notificationIds
       },
       fetchPolicy: 'network-only',
       onCompleted: () => {
@@ -149,7 +144,7 @@ const NotificationSection = () => {
         }
       },
       variables: {
-        id: notification?.notification?.id
+        uuid: notification?.notification?.uuid
       },
       fetchPolicy: 'network-only',
       onCompleted: () => {

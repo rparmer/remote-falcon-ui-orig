@@ -96,9 +96,9 @@
   "devDependencies": {
     "@babel/core": "^7.17.2",
     "@babel/eslint-parser": "^7.17.0",
-    "eslint": "^7.27.0",
+    "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.5.0",
-    "eslint-config-react-app": "6.0.0",
+    "eslint-config-react-app": "^6.0.0",
     "eslint-plugin-cypress": "^2.15.2",
     "eslint-plugin-flowtype": "^5.7.2",
     "eslint-plugin-import": "^2.26.0",
@@ -107,6 +107,7 @@
     "eslint-plugin-react": "^7.29.4",
     "eslint-plugin-react-hooks": "^4.5.0",
     "prettier": "^2.6.2",
-    "sass": "^1.49.7"
+    "sass": "^1.49.7",
+    "vite-plugin-eslint": "^1.8.1"
   }
 }

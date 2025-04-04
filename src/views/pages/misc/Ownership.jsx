@@ -12,8 +12,8 @@ const PrivacyPolicy = () => {
             </p>
             <p>
                 The current owner of Remote Falcon and all repositories within the 
-                <a href="https://github.com/Remote-Falcon" target="_blank">Remote Falcon GitHub Organization</a> 
-                is James Vance (GitHub user <a href="https://github.com/whitesoup12" target="_blank">whitesoup12</a>).
+                <a href="https://github.com/Remote-Falcon" target="_blank" rel="noreferrer">Remote Falcon GitHub Organization</a> 
+                is James Vance (GitHub user <a href="https://github.com/whitesoup12" target="_blank" rel="noreferrer">whitesoup12</a>).
             </p>
         </>
     )

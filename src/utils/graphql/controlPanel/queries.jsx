@@ -67,6 +67,12 @@ export const GET_SHOW = gql`
         showOnMap
         selfHostedRedirectUrl
         blockedViewerIps
+        notificationPreferences {
+          enableFppHeartbeat
+          fppHeartbeatIfControlEnabled
+          fppHeartbeatRenotifyAfterMinutes
+          fppHeartbeatLastNotification
+        }
       }
       sequences {
         name
@@ -306,6 +312,9 @@ export const GET_NOTIFICATIONS = gql`
     getNotifications {
       notification {
         id
+        uuid
+        createdDate
+        preview
         subject
         message
       }
