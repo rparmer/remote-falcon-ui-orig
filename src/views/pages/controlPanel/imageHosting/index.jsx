@@ -20,7 +20,6 @@ import {
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import _ from 'lodash';
-import { useFeatureFlagPayload } from 'posthog-js/react';
 import { useDropzone } from 'react-dropzone';
 
 import { useDispatch, useSelector } from '../../../../store';
@@ -34,8 +33,6 @@ const ImageHosting = () => {
   const theme = useTheme();
   const dispatch = useDispatch();
   const { show } = useSelector((state) => state.show);
-
-  const imageHostingPayload = useFeatureFlagPayload('image-hosting');
 
   const [showLinearProgress, setShowLinearProgress] = useState(false);
   const [images, setImages] = useState([]);
@@ -165,60 +162,59 @@ const ImageHosting = () => {
 
   return (
     <Box sx={{ mt: 2 }}>
-      {imageHostingPayload?.includes(show?.showSubdomain) ? (
-        <Grid container spacing={gridSpacing}>
-          <Grid item xs={12}>
-            <MainCard title="Image Hosting" content={false}>
-              <Grid item xs={12}>
-                {showLinearProgress && <LinearProgress />}
-              </Grid>
-              <>
-                <Stack direction="row" spacing={2} justifyContent="center" padding={2} width="50%" margin="0 auto">
-                  <div {...getRootProps({ style })}>
-                    <input {...getInputProps()} />
-                    <p>Drag image here or click to select (1MB limit)</p>
-                  </div>
-                </Stack>
-                <TableContainer>
-                  <Table size="small" aria-label="collapsible table">
-                    <TableHead sx={{ '& th,& td': { whiteSpace: 'nowrap' } }}>
-                      <TableRow>
-                        <TableCell sx={{ pl: 3 }}>Preview</TableCell>
-                        <TableCell sx={{ pl: 3 }}>Image URL</TableCell>
-                        <TableCell sx={{ pl: 3 }}>Actions</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      <>
-                        {_.map(images, (image, index) => (
-                          <>
-                            <TableRow>
-                              <TableCell>
-                                <img alt={index.toString()} src={image.path} height="100" width="100" />
-                              </TableCell>
-                              <TableCell>
-                                <Stack direction="row" spacing={1}>
-                                  <a href={image.path} target="_blank" rel="noreferrer">
-                                    <Typography variant="h4" sx={{ color: theme.palette.primary.main, pt: 1 }}>
-                                      {image.path}
-                                    </Typography>
-                                  </a>
-                                  <Tooltip placement="top" title="Copy Image URL">
-                                    <IconButton
+      <Grid container spacing={gridSpacing}>
+        <Grid item xs={12}>
+          <MainCard title="Image Hosting" content={false}>
+            <Grid item xs={12}>
+              {showLinearProgress && <LinearProgress />}
+            </Grid>
+            <>
+              <Stack direction="row" spacing={2} justifyContent="center" padding={2} width="50%" margin="0 auto">
+                <div {...getRootProps({ style })}>
+                  <input {...getInputProps()} />
+                  <p>Drag image here or click to select (1MB limit)</p>
+                </div>
+              </Stack>
+              <TableContainer>
+                <Table size="small" aria-label="collapsible table">
+                  <TableHead sx={{ '& th,& td': { whiteSpace: 'nowrap' } }}>
+                    <TableRow>
+                      <TableCell sx={{ pl: 3 }}>Preview</TableCell>
+                      <TableCell sx={{ pl: 3 }}>Image URL</TableCell>
+                      <TableCell sx={{ pl: 3 }}>Actions</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    <>
+                      {_.map(images, (image, index) => (
+                        <>
+                          <TableRow>
+                            <TableCell>
+                              <img alt={index.toString()} src={image.path} height="100" width="100" />
+                            </TableCell>
+                            <TableCell>
+                              <Stack direction="row" spacing={1}>
+                                <a href={image.path} target="_blank" rel="noreferrer">
+                                  <Typography variant="h4" sx={{ color: theme.palette.primary.main, pt: 1 }}>
+                                    {image.path}
+                                  </Typography>
+                                </a>
+                                <Tooltip placement="top" title="Copy Image URL">
+                                  <IconButton
                                       aria-label="Copy Image URL"
                                       onClick={() => copyImageUrl(image.path)}
                                       edge="end"
                                       size="small"
                                       sx={{ ml: 0.5 }}
-                                    >
-                                      <ContentCopyTwoToneIcon />
-                                    </IconButton>
-                                  </Tooltip>
-                                </Stack>
-                              </TableCell>
-                              <TableCell sx={{ pl: 3 }}>
-                                <Tooltip placement="top" title="Delete Image">
-                                  <IconButton
+                                  >
+                                    <ContentCopyTwoToneIcon />
+                                  </IconButton>
+                                </Tooltip>
+                              </Stack>
+                            </TableCell>
+                            <TableCell sx={{ pl: 3 }}>
+                              <Tooltip placement="top" title="Delete Image">
+                                <IconButton
                                     color="primary"
                                     sx={{
                                       color: theme.palette.orange.dark,
@@ -227,25 +223,22 @@ const ImageHosting = () => {
                                     }}
                                     size="large"
                                     onClick={() => deleteImage(image.name)}
-                                  >
-                                    <DeleteTwoToneIcon />
-                                  </IconButton>
-                                </Tooltip>
-                              </TableCell>
-                            </TableRow>
-                          </>
-                        ))}
-                      </>
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              </>
-            </MainCard>
-          </Grid>
+                                >
+                                  <DeleteTwoToneIcon />
+                                </IconButton>
+                              </Tooltip>
+                            </TableCell>
+                          </TableRow>
+                        </>
+                      ))}
+                    </>
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </>
+          </MainCard>
         </Grid>
-      ) : (
-        <></>
-      )}
+      </Grid>
     </Box>
   );
 };

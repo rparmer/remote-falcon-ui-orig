@@ -39,7 +39,7 @@ const controlPanel = {
       title: (
         <>
           <span style={{ paddingRight: '1em' }}>Image Hosting</span>
-          <Chip label="NEW" chipcolor="primary" />
+          <Chip label="NEW" chipcolor="primary" sx={{ height: 13 }} />
         </>
       ),
       type: 'item',
