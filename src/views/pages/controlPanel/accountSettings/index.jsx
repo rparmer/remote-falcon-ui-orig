@@ -18,9 +18,8 @@ import Account from './Account';
 import ChangePassword from './ChangePassword';
 import UserProfile from './UserProfile';
 import Notifications from './Notifications';
-import {useFeatureFlagPayload} from "posthog-js/react";
 
-const toggledTabOptions = [
+const tabOptions = [
   {
     label: 'User Profile',
     icon: <PersonOutlineTwoToneIcon />,
@@ -43,24 +42,6 @@ const toggledTabOptions = [
   }
 ];
 
-const tabOptions = [
-  {
-    label: 'User Profile',
-    icon: <PersonOutlineTwoToneIcon />,
-    caption: 'Main user settings'
-  },
-  {
-    label: 'Account',
-    icon: <DescriptionTwoToneIcon />,
-    caption: 'Show Token and other show settings'
-  },
-  {
-    label: 'Change Password',
-    icon: <VpnKeyTwoToneIcon />,
-    caption: 'Change password'
-  }
-];
-
 const AccountSettings = () => {
   const theme = useTheme();
   const { show } = useSelector((state) => state.show);
@@ -68,8 +49,6 @@ const AccountSettings = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showLinearProgress, setShowLinearProgress] = useState(false);
   const [gravatar, setGravatar] = useState();
-
-  const notificationPreferencesPayload = useFeatureFlagPayload('notification-preferences');
 
   useEffect(() => {
     setIsLoading(true);
@@ -90,11 +69,7 @@ const AccountSettings = () => {
               </Grid>
               <Grid item xs={12} lg={4}>
                 <CardContent>
-                  {notificationPreferencesPayload?.includes(show?.showSubdomain) ? (
-                      <RFTabPanel tabOptions={toggledTabOptions} orientation="vertical" />
-                  ) : (
-                      <RFTabPanel tabOptions={tabOptions} orientation="vertical" />
-                  )}
+                  <RFTabPanel tabOptions={tabOptions} orientation="vertical" />
                 </CardContent>
               </Grid>
               <Grid item xs={12} lg={8}>
@@ -105,43 +80,24 @@ const AccountSettings = () => {
                     height: '100%'
                   }}
                 >
-                  {notificationPreferencesPayload?.includes(show?.showSubdomain) ? (
-                      <>
-                        <RFTab index={0} value="UserProfile">
-                          {isLoading ? (
-                              <UserProfileSkeleton />
-                          ) : (
-                              <UserProfile gravatar={gravatar} setShowLinearProgress={setShowLinearProgress} />
-                          )}
-                        </RFTab>
-                        <RFTab index={1} value="Account">
-                          <Account />
-                        </RFTab>
-                        <RFTab index={2} value="Notifications">
-                          <Notifications setShowLinearProgress={setShowLinearProgress} />
-                        </RFTab>
-                        <RFTab index={3} value="ChangePassword">
-                          <ChangePassword />
-                        </RFTab>
-                      </>
-                  ) : (
-                      <>
-                        <RFTab index={0} value="UserProfile">
-                          {isLoading ? (
-                              <UserProfileSkeleton />
-                          ) : (
-                              <UserProfile gravatar={gravatar} setShowLinearProgress={setShowLinearProgress} />
-                          )}
-                        </RFTab>
-                        <RFTab index={1} value="Account">
-                          <Account />
-                        </RFTab>
-                        <RFTab index={2} value="ChangePassword">
-                          <ChangePassword />
-                        </RFTab>
-                      </>
-                  )}
-
+                  <>
+                    <RFTab index={0} value="UserProfile">
+                      {isLoading ? (
+                          <UserProfileSkeleton />
+                      ) : (
+                          <UserProfile gravatar={gravatar} setShowLinearProgress={setShowLinearProgress} />
+                      )}
+                    </RFTab>
+                    <RFTab index={1} value="Account">
+                      <Account />
+                    </RFTab>
+                    <RFTab index={2} value="Notifications">
+                      <Notifications setShowLinearProgress={setShowLinearProgress} />
+                    </RFTab>
+                    <RFTab index={3} value="ChangePassword">
+                      <ChangePassword />
+                    </RFTab>
+                  </>
                 </CardContent>
               </Grid>
             </Grid>
