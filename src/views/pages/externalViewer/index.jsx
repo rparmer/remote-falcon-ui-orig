@@ -29,8 +29,8 @@ const ExternalViewerPage = () => {
   const dispatch = useDispatch();
 
   const blockRedirectReferrers = ['https://player.pulsemesh.io/'];
-  const baseGithubPath = 'https://raw.githubusercontent.com/Remote-Falcon/remote-falcon-viewer-page-js/refs/heads/main/';
-  const baseCdnPath = 'https://cdn.jsdelivr.net/gh/Remote-Falcon/remote-falcon-viewer-page-js@main/';
+  const baseGithubPath = import.meta.env.VITE_BASE_GITHUB_PATH || 'https://raw.githubusercontent.com/Remote-Falcon/remote-falcon-viewer-page-js/refs/heads/main/';
+  const baseCdnPath = import.meta.env.VITE_BASE_CDN_PATH || 'https://cdn.jsdelivr.net/gh/Remote-Falcon/remote-falcon-viewer-page-js@main/';
 
   const [loading, setLoading] = useState(false);
   const [show, setShow] = useState();
