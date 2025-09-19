@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
-import {useLazyQuery} from "@apollo/client";
+import {useLazyQuery, useMutation} from "@apollo/client";
 import {ASK_WATTSON} from "../../../../utils/graphql/controlPanel/queries";
+import {WATTSON_FEEDBACK} from "../../../../utils/graphql/controlPanel/mutations";
 import {showAlert} from "../../globalPageHelpers";
 import { useDispatch, useSelector } from '../../../../store';
 import {gridSpacing} from "../../../../store/constant";
@@ -67,7 +68,9 @@ const AskWattson = () => {
 
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [feedbackState, setFeedbackState] = useState({});
   const [askWattsonQuery] = useLazyQuery(ASK_WATTSON);
+  const [sendFeedback] = useMutation(WATTSON_FEEDBACK);
 
   // Save messages to localStorage whenever they change
   useEffect(() => {
@@ -90,6 +93,25 @@ const AskWattson = () => {
     if (inputRef.current) inputRef.current.focus();
   }, []);
 
+  useEffect(() => {
+    setFeedbackState((prev) => {
+      const next = {};
+      messages.forEach((message) => {
+        if (message.role === 'assistant' && message.responseId) {
+          const prevEntry = prev[message.id];
+          const selection = prevEntry?.selection ?? message.feedbackSelection ?? null;
+          const status = message.feedbackSubmitted ? 'submitted' : prevEntry?.status ?? 'idle';
+          next[message.id] = {
+            selection,
+            status,
+            error: status === 'submitted' ? null : prevEntry?.error || null
+          };
+        }
+      });
+      return next;
+    });
+  }, [messages]);
+
   // Function to clear chat history
   const handleClearChat = () => {
     if (window.confirm('Are you sure you want to clear the entire chat history?')) {
@@ -103,6 +125,7 @@ const AskWattson = () => {
           timestamp: new Date()
         }
       ]);
+      setFeedbackState({});
     }
   };
 
@@ -182,6 +205,10 @@ const AskWattson = () => {
         };
 
         setMessages((prev) => [...prev, assistantMessage]);
+        setFeedbackState((prev) => ({
+          ...prev,
+          [assistantMessage.id]: { selection: null, status: 'idle', error: null }
+        }));
         setIsLoading(false);
       },
       onError: () => {
@@ -192,6 +219,66 @@ const AskWattson = () => {
         setIsLoading(false);
       }
     });
+  };
+
+  const handleFeedbackClick = async (message, sentiment) => {
+    if (!message.responseId) return;
+
+    const current = feedbackState[message.id] || { selection: null, status: 'idle', error: null };
+
+    if (current.status === 'submitting') {
+      return;
+    }
+
+    if (current.status === 'submitted' && current.selection === sentiment) {
+      return;
+    }
+
+    setFeedbackState((prev) => ({
+      ...prev,
+      [message.id]: { selection: sentiment, status: 'submitting', error: null }
+    }));
+
+    try {
+      const { data } = await sendFeedback({
+        variables: {
+          responseId: message.responseId,
+          feedback: sentiment
+        }
+      });
+
+      if (data?.wattsonFeedback) {
+        mixpanel.track('Ask Wattson Feedback', {
+          ResponseId: message.responseId,
+          Feedback: sentiment
+        });
+
+        setFeedbackState((prev) => ({
+          ...prev,
+          [message.id]: { selection: sentiment, status: 'submitted', error: null }
+        }));
+
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.id === message.id
+              ? { ...msg, feedbackSubmitted: true, feedbackSelection: sentiment }
+              : msg
+          )
+        );
+      } else {
+        throw new Error('Feedback not accepted');
+      }
+    } catch (error) {
+      console.error('Failed to send Wattson feedback:', error);
+      setFeedbackState((prev) => ({
+        ...prev,
+        [message.id]: {
+          selection: sentiment,
+          status: 'error',
+          error: 'Could not send feedback. Try again.'
+        }
+      }));
+    }
   };
 
   return (
@@ -259,6 +346,16 @@ const AskWattson = () => {
                 .message-bubble { padding: 14px 18px; border-radius: 18px; line-height: 1.5; font-size: 15px; max-width: 100%; word-wrap: break-word; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
                 .message.user .message-bubble { background: var(--user-msg-bg); border: 1px solid var(--user-msg-border); border-bottom-right-radius: 4px; text-align: left; }
                 .message.assistant .message-bubble { background: var(--bot-msg-bg); border: 1px solid var(--bot-msg-border); border-bottom-left-radius: 4px; text-align: left; }
+
+                .message-feedback { margin-top: 8px; display: flex; gap: 8px; }
+                .feedback-button { width: 36px; height: 36px; border-radius: 50%; border: 1px solid rgba(255, 255, 255, 0.15); background: rgba(255, 255, 255, 0.05); color: var(--text); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease; }
+                .feedback-button:hover { transform: translateY(-1px); background: rgba(255, 255, 255, 0.12); border-color: rgba(255, 255, 255, 0.3); }
+                .feedback-button span { font-size: 18px; line-height: 1; }
+                .feedback-button.thumbs-up.selected { background: rgba(16, 185, 129, 0.25); border-color: rgba(16, 185, 129, 0.6); }
+                .feedback-button.thumbs-down.selected { background: rgba(248, 113, 113, 0.25); border-color: rgba(248, 113, 113, 0.6); }
+                .feedback-button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+                .feedback-success { margin-left: 12px; font-size: 12px; color: var(--accent3); align-self: center; }
+                .feedback-error { margin-left: 12px; font-size: 12px; color: rgba(248, 113, 113, 0.95); align-self: center; }
                 .message-time { font-size: 12px; color: var(--text-muted); margin-top: 5px; opacity: 0.7; }
                 .message.user .message-time { text-align: right; }
                 .message.assistant .message-time { text-align: left; }
@@ -361,20 +458,58 @@ const AskWattson = () => {
 
                 {/* Messages area */}
                 <div className="messages-container">
-                  {messages.map((message) => (
-                    <div key={message.id} className={`message ${message.role}`}>
-                      <div className="message-bubble">
-                        {message.role === 'assistant' ? (
-                          <ReactMarkdown remarkPlugins={[remarkBreaks]}>{message.content}</ReactMarkdown>
-                        ) : (
-                          message.content
+                  {messages.map((message) => {
+                    const feedbackEntry = feedbackState[message.id];
+                    const selection = feedbackEntry?.selection;
+                    const isSubmittingFeedback = feedbackEntry?.status === 'submitting';
+                    const isSubmittedFeedback = feedbackEntry?.status === 'submitted';
+                    const feedbackError = feedbackEntry?.error;
+
+                    return (
+                      <div key={message.id} className={`message ${message.role}`}>
+                        <div className="message-bubble">
+                          {message.role === 'assistant' ? (
+                            <ReactMarkdown remarkPlugins={[remarkBreaks]}>{message.content}</ReactMarkdown>
+                          ) : (
+                            message.content
+                          )}
+                        </div>
+                        {message.role === 'assistant' && message.responseId && (
+                          <div className="message-feedback" aria-label="Provide feedback on Wattson's reply">
+                            <button
+                              type="button"
+                              className={`feedback-button thumbs-up${selection === 'THUMBS_UP' ? ' selected' : ''}`}
+                              title="Helpful"
+                              aria-label="Thumbs up"
+                              onClick={() => handleFeedbackClick(message, 'THUMBS_UP')}
+                              disabled={isSubmittingFeedback}
+                            >
+                              <span aria-hidden="true">&#128077;</span>
+                            </button>
+                            <button
+                              type="button"
+                              className={`feedback-button thumbs-down${selection === 'THUMBS_DOWN' ? ' selected' : ''}`}
+                              title="Not helpful"
+                              aria-label="Thumbs down"
+                              onClick={() => handleFeedbackClick(message, 'THUMBS_DOWN')}
+                              disabled={isSubmittingFeedback}
+                            >
+                              <span aria-hidden="true">&#128078;</span>
+                            </button>
+                            {isSubmittedFeedback && !feedbackError && (
+                              <div className="feedback-success">Thanks for your feedback!</div>
+                            )}
+                            {feedbackError && (
+                              <div className="feedback-error">{feedbackError}</div>
+                            )}
+                          </div>
                         )}
+                        <div className="message-time">
+                          {message.timestamp && new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </div>
                       </div>
-                      <div className="message-time">
-                        {message.timestamp && new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
 
                   {isLoading && (
                     <div className="typing-indicator">
