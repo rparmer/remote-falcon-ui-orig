@@ -1,9 +1,9 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 import Editor from '@monaco-editor/react';
 import { Box, Grid, Link, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
-import newAxios from 'axios';
 import _ from 'lodash';
+import { HtmlValidate } from 'html-validate';
 
 import { useDispatch, useSelector } from '../../../../store';
 import { gridSpacing } from '../../../../store/constant';
@@ -14,14 +14,19 @@ import { showAlertOld } from '../../globalPageHelpers';
 import ViewerPageActions from './ViewerPageActions';
 
 const validationExceptions = [
-  'Start tag seen without seeing a doctype first',
-  'Element “head” is missing',
-  '{after-hours-message}',
-  '{jukebox-dynamic-container}',
-  '{playlist-voting-dynamic-container}',
-  '{location-code-dynamic-container}',
-  'instructional-text'
+  'instructional-text',
+  'Trailing whitespace',
+  'Inline style is not allowed',
+  'End tag for <br> must be omitted',
+  'Anchor link must have a text describing its purpose',
+  'Expected omitted end tag <link> instead of self-closing element <link/>',
+  '<img> is missing required "alt" attribute',
+  'Expected omitted end tag <br> instead of self-closing element <br/>'
 ];
+
+const htmlValidator = new HtmlValidate({
+  extends: ['html-validate:recommended']
+});
 
 const ViewerPage = () => {
   const dispatch = useDispatch();
@@ -34,42 +39,40 @@ const ViewerPage = () => {
   const [htmlValidation, setHtmlValidation] = useState([]);
   const [editorLineNumber, setEditorLineNumber] = useState(0);
   const [openSidePreview, setOpenSidePreview] = useState(false);
+  const [hasHtmlValidationRun, setHasHtmlValidationRun] = useState(false);
 
-  const validateHtmlService = async (html) => {
-    const url = 'https://validator.nu/';
-    const formData = new FormData();
-    formData.append('out', 'json');
-    formData.append('parser', 'html');
-    formData.append('content', html);
-    const config = {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    };
-    return newAxios.post(url, formData, config);
-  };
-
-  const validateHtml = async (html) => {
+  const validateHtml = useCallback(async (html) => {
     setIsHtmlValidating(true);
     try {
-      const response = await validateHtmlService(html);
-      const messages = response?.data?.messages;
-      const sortedMessages = _.orderBy(messages, ['lastLine'], ['asc']);
-      setHtmlValidation(sortedMessages);
-      setIsHtmlValidating(false);
+      const report = await htmlValidator.validateString(html || '');
+      const results = report?.results ?? [];
+      const formattedMessages = _.orderBy(
+        _.flatMap(results, (result) =>
+          _.map(result.messages ?? [], (message) => {
+            const lineNumber = message.line ?? message.location?.line ?? message.offset?.line ?? null;
+            return {
+              type: message.severity === 2 ? 'error' : 'warning',
+              message: message.message,
+              lastLine: lineNumber
+            };
+          })
+        ),
+        ['lastLine'],
+        ['asc']
+      );
+      setHtmlValidation(formattedMessages);
+      setHasHtmlValidationRun(true);
     } catch (err) {
       showAlertOld({ dispatch, message: 'Unable to validate HTML', alert: 'warning' });
+    } finally {
       setIsHtmlValidating(false);
     }
-  };
-
-  const throttledValidation = useRef(_.throttle((html) => validateHtml(html), 2500));
+  }, [dispatch]);
 
   const editorChanged = (value) => {
     setActiveViewerPageHtml(value);
     const viewerPageHtmlBase64 = `data:text/html;base64,${btoa(unescape(encodeURIComponent(value)))}`;
     setActiveViewerPageHtmlBase64(viewerPageHtmlBase64);
-    throttledValidation.current(value);
   };
 
   const isValidationException = (message) => {
@@ -94,7 +97,6 @@ const ViewerPage = () => {
         setActiveViewerPageName(viewerPage?.name);
         const viewerPageHtmlBase64 = `data:text/html;base64,${btoa(unescape(encodeURIComponent(viewerPage?.html)))}`;
         setActiveViewerPageHtmlBase64(viewerPageHtmlBase64);
-        validateHtml(viewerPage?.html);
       }
     });
   };
@@ -104,7 +106,6 @@ const ViewerPage = () => {
     setActiveViewerPageName(viewerPage?.name);
     const viewerPageHtmlBase64 = `data:text/html;base64,${btoa(unescape(encodeURIComponent(viewerPage?.html)))}`;
     setActiveViewerPageHtmlBase64(viewerPageHtmlBase64);
-    validateHtml(viewerPage?.html);
   };
 
   const getActiveViewerPage = useCallback(() => {
@@ -114,7 +115,6 @@ const ViewerPage = () => {
         setActiveViewerPageName(page?.name);
         const viewerPageHtmlBase64 = `data:text/html;base64,${btoa(unescape(encodeURIComponent(page?.html)))}`;
         setActiveViewerPageHtmlBase64(viewerPageHtmlBase64);
-        validateHtml(page?.html);
       }
     });
   }, [show]);
@@ -122,6 +122,17 @@ const ViewerPage = () => {
   useEffect(() => {
     getActiveViewerPage();
   }, [getActiveViewerPage]);
+
+  useEffect(() => {
+    if (activeViewerPageHtml !== undefined) {
+      validateHtml(activeViewerPageHtml);
+    }
+  }, [activeViewerPageHtml, validateHtml]);
+
+  const htmlValidationErrors = _.filter(
+    htmlValidation,
+    (validation) => validation.type === 'error' && !isValidationException(validation.message)
+  );
 
   return (
     <Box sx={{ mt: 2 }}>
@@ -177,45 +188,42 @@ const ViewerPage = () => {
               <Typography variant="h3" sx={{ paddingTop: 3 }}>
                 HTML Validation
               </Typography>
-              {htmlValidation.length > 0 && (
-                <>
-                  {isHtmlValidating ? (
-                    <HtmlValidationSkeleton />
-                  ) : (
-                    <TableContainer>
-                      <Table sx={{ minWidth: 350 }} aria-label="simple table">
-                        <TableHead>
-                          <TableRow>
-                            <TableCell align="left">Type</TableCell>
-                            <TableCell align="left">Message</TableCell>
-                            <TableCell align="left">Line Number</TableCell>
-                          </TableRow>
-                        </TableHead>
-                        <TableBody className="validation">
-                          {_.map(
-                            htmlValidation,
-                            (validation) =>
-                              validation.type === 'error' &&
-                              !isValidationException(validation.message) && (
-                                <TableRow hover>
-                                  <TableCell align="left">{validation.type}</TableCell>
-                                  <TableCell align="left">{validation.message}</TableCell>
-                                  <TableCell align="left">
-                                    <Link
-                                      style={{ cursor: 'pointer' }}
-                                      onClick={() => htmlValidationRowClicked(validation.lastLine, setEditorLineNumber)}
-                                    >
-                                      {validation.lastLine}
-                                    </Link>
-                                  </TableCell>
-                                </TableRow>
-                              )
-                          )}
-                        </TableBody>
-                      </Table>
-                    </TableContainer>
-                  )}
-                </>
+              {isHtmlValidating ? (
+                <HtmlValidationSkeleton />
+              ) : htmlValidationErrors.length > 0 ? (
+                <TableContainer>
+                  <Table sx={{ minWidth: 350 }} aria-label="simple table">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell align="left">Type</TableCell>
+                        <TableCell align="left">Message</TableCell>
+                        <TableCell align="left">Line Number</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody className="validation">
+                      {_.map(htmlValidationErrors, (validation) => (
+                        <TableRow hover key={`${validation.message}-${validation.lastLine}`}>
+                          <TableCell align="left">{validation.type}</TableCell>
+                          <TableCell align="left">{validation.message}</TableCell>
+                          <TableCell align="left">
+                            <Link
+                              style={{ cursor: 'pointer' }}
+                              onClick={() => htmlValidationRowClicked(validation.lastLine, setEditorLineNumber)}
+                            >
+                              {validation.lastLine}
+                            </Link>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              ) : (
+                hasHtmlValidationRun && (
+                  <Typography variant="h2" align="center" color="success.main" sx={{ mt: 2, mb: 4 }}>
+                    Your viewer page looks awesome!
+                  </Typography>
+                )
               )}
             </Box>
           </MainCard>
