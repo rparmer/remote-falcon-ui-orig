@@ -6,10 +6,13 @@ import { useSelector } from '../../../../../store';
 
 import NavCollapse from '../NavCollapse';
 import NavItem from '../NavItem';
+import { useIsFeatureFlagEnabled } from '../../../../../utils/featureFlags';
 
 const NavGroup = ({ item }) => {
   const theme = useTheme();
   const { show } = useSelector((state) => state.show);
+
+  const isAskWattsonEnabled = useIsFeatureFlagEnabled('ask-wattson', show?.showSubdomain);
 
   // menu list collapse & items
   const items = item.children?.map((menu) => {
@@ -17,6 +20,9 @@ const NavGroup = ({ item }) => {
       if (show?.showRole !== 'ADMIN') {
         return <></>;
       }
+    }
+    if (menu.id === 'ask-wattson' && !isAskWattsonEnabled) {
+      return <></>;
     }
     switch (menu.type) {
       case 'collapse':
